@@ -1,0 +1,18 @@
+base_dir: "question-pool"
+questions:
+  section_a:
+    question_1: 2V9P
+    question_2: 3G8F
+    question_3: 5N3T
+    question_4: 7K4M
+    question_5: 9D4Z
+    question_6: A8E2
+    question_7: C4J9
+    question_8: H0RB
+  section_a_cont:
+    question_9: M6W2
+    question_10: P1Y7
+    question_11: T5B6
+    question_12: W1S5
+  section_b:
+    question_13: X71C
