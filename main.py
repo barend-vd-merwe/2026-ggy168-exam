@@ -8,12 +8,12 @@ home_page = st.Page(
 
 sec_a_1 = st.Page(
     "pages/section-a.py",
-    title = "Section A (Page 1)"
+    title = "Section A"
 )
 
 sec_a_2 = st.Page(
     "pages/section-a-cont.py",
-    title = "Section A (Page 2)"
+    title = "Section A (cont.)"
 )
 
 sec_b = st.Page(
