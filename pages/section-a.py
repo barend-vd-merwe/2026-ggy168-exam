@@ -663,7 +663,7 @@ if uploaded_files and grader.strip() and usr_pin == gizelle_pin or usr_pin == ba
                 final_img_rgb = cv.cvtColor(st.session_state["graded_submission"], cv.COLOR_BGR2RGB)
                 final_img_pil = Image.fromarray(final_img_rgb)
 
-                filename = f"graded_{filename}.png"
+                filename = f"graded-{surname}-{name}-{emplid}.png"
                 grader_timestamp = datetime.now().isoformat()
                 meta_info = PngInfo()
                 meta_info.add_text("Grader", grader.strip())
