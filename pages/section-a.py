@@ -821,9 +821,9 @@ if uploaded_files and grader.strip() and usr_pin == gizelle_pin or usr_pin == ba
             q8a_dra_fc = round(q8_sol["site_1"]["full_credit"], 4)
             q8a_dra_pc = round(q8_sol["site_1"]["partial_credit"], 4)
 
-            q8a_cap = round(q8_sol["site_1"]["downslope_force"], 4)
-            q8a_cap_fc = round(q8_sol["site_1"]["full_credit"], 4)
-            q8a_cap_pc = round(q8_sol["site_1"]["partial_credit"], 4)
+            q8a_cap = round(q8_sol["site_2"]["downslope_force"], 4)
+            q8a_cap_fc = round(q8_sol["site_2"]["full_credit"], 4)
+            q8a_cap_pc = round(q8_sol["site_2"]["partial_credit"], 4)
 
             q8a_ans = q8_sol["part_a"]["answer"]
             q8a_mot = q8_sol["part_a"]["motivation"]
