@@ -82,7 +82,158 @@ def process_solutions():
                 print(f"{question_key} created")
 
 def grade_submission():
-    pass
+    # question 1
+    q1_grd = 0.0
+    q1_sub_ans = float(st.session_state["q1_val"])
+    q1_sub_unt = st.session_state["q1_unt"]
+
+    q1_range = [
+        (q1_ans - q1_fc, q1_ans + q1_fc, 3.0),
+        (q1_ans - q1_pc, q1_ans + q1_pc, 1.5)
+    ]
+
+    q1_grd += next((grade for lower, upper, grade in q1_range if lower <= q1_sub_ans <= upper), 0)
+
+    if q1_sub_unt == "m":
+        q1_grd += 1.0
+    else:
+        q1_grd += 0.0
+
+    # question 2
+    q2a_grd = 0.0
+    q2b_grd = 0.0
+    q2c_grd = 0.0
+    q2a_sub_ans = float(st.session_state["q2a_val"])
+    q2a_sub_unt = st.session_stte["q2a_unt"]
+    q2b_sub_ans = st.session_state["q2b"]
+    q2c_sub_ans = st.session_state["q2c"]
+
+    q2a_range = [
+        (q2a_ans - q2a_fc, q2a_ans + q2a_fc, 3.0),
+        (q2a_ans - q2a_pc, q2a_ans + q2a_pc, 1.5)
+    ]
+
+    q2a_grd = next((grade for lower, upper, grade in q2a_range if lower <= q2a_sub_ans <= upper),0)
+
+    if q2a_aub_unt == "cm²":
+        q2a_grade += 1.0
+    else:
+        q2a_grd += 0.0
+
+    if q2b_sub_ans == "2025 — 2026":
+        q2b_grd += 1.0
+    else:
+        q2b_grd += 0.0
+
+    if q2c_sub_ans == "Full Credit":
+        q2c_grd += 2.0
+    elif q2c_sub_ans == "Partial Credit":
+        q2c_grd += 1.0
+    else:
+        q2c_grd += 0.0
+
+    q2_grd = q2a_grd + q2b_grd + q2c_grd
+
+    # question 3
+    q3_grd = 0.0
+    q3_sub_ans = float(st.session_state["q3_val"])
+    q3_sub_mot = st.session_state["q3_mot"]
+
+    q3_range = [
+        (q3_ans - q3_fc, q3_ans + q3_fc, 2.0),
+        (q3_ans - q3_pc, q3_ans + q3_pc, 1.0)
+        ]
+
+    q3_grd += next((grade for lower, upper, grade in q3_range if lower <= q3_sub_ans <= upper),0)
+
+    if q3_sub_mot == "Full Credit":
+        q3_grd += 3.0
+    elif q3_sub_mot == "Partial Credit":
+        q3_grd += 1.5
+    else:
+        q3_grd += 0.0
+
+    # question 4
+    q4_grd = 0.0
+    q4_sub_ans = float(st.session_key["q4_val"])
+    q4_sub_mot = st.session_sate["q4_mot"]
+
+    q4_range = [
+        (q4_re - q4_fc, q4_re + q4_ans, 5.0),
+        (q4_re - q4_pc, q4_re + q4_pc, 2.5)
+    ]
+
+    q4_grd += next((grade for lower, upper, grade in q4_range if lower <= q4_sub_ans <= upper),0.0)
+
+    if q4_sub_mot == "Full Credit":
+        q4_grd += 3.0
+    elif q4_sub_mot == "Partial Credit":
+        q4_grd += 1.5
+    else:
+        q4_grd += 0.0
+
+    # question 5
+    q5_grd = 0.0
+    q5_sab_sub_ans = st.session_state["q5_sab_val"]
+    q5_bav_sub_ans = st.session_state["q5_bav_val"]
+    q5_sub_ans = st.session_state["q5_ans"]
+    q5_sub_mot = st.session_state["q5_mot"]
+
+    q5_sab_range = [
+        (q5_sab - q5_sab_fc, q5_sab + q5_sab_fc, 2.0),
+        (q5_sab - q5_sab_pc, q5_sab + q5_sab_pc, 1.0)
+    ]
+
+    q5_grd += next((grade for lower, upper, grade in q5_sab_range if lower <= q5_sab_sub_ans <= upper)0)
+
+    q5_bav_range = [
+        (q5_bav - q5_bav_fc, q5_bav + q5_bav_fc, 2.0),
+        (q5_bav - q5_bav_pc, q5_bav + q5_bav_pc, 1.0)
+    ]
+
+    q5_grd += next((grade for lower, upper, grade in q5_bav_range if lower <= q5_bav_sub_ans <= upper)0)
+
+    if q5_sub_ans == "Sabie River":
+        q5_grd += 1.0
+    else:
+        q5_grd += 0.0
+
+    if q5_sub_mot == "Full Credit":
+        q5_grd += 1.0
+    elif q5_sub_mot == "Partial Credit":
+        q5_grd += 0.5
+    else:
+        q5_grd += 0.0
+
+    # question 6
+    q6_grd = 0.0
+    q6_sub_ans = st.session_state["q6"]
+
+    if q6_sub_ans == "Concave":
+        q6_grd += 2.0
+    else:
+        q6_grd += 0.0
+
+    # question 7
+    q7_grd = 0.0
+    q7_pro_sub = st.session_state["q7_profile"]
+    q7_pla_sub = st.session_state["q7_plan"]
+
+    if q7_pro_sub == "Concave":
+        q7_grd += 1.0
+    else:
+        q7_grd += 0.0
+
+    if q7_pla_sub == "Concave":
+        q7_grd += 1.0
+    else:
+        q7_grd += 0.0
+
+    # question 8
+    q8a_grd = 0.0
+    q8b_grd = 0.0
+
+    
 
 def next_submission():
     st.session_state["script_index"] += 1
@@ -98,6 +249,8 @@ def next_submission():
     st.session_state["q3_mot"] = None
     st.session_state["q4_val"] = ""
     st.session_state["q4_mot"] = None
+    st.session_state["q5_sab_val"] = ""
+    st.session_state["q5_bav_val"] = ""
     st.session_state["q5_ans"] = None
     st.session_state["q5_mot"] = None
     st.session_state["q6"] = None
@@ -304,12 +457,17 @@ if uploaded_files and grader.strip():
                 q5_col1, q5_col2 = st.columns(2)
 
                 with q5_col1:
+                    st.text_input("Discharge (Sabie)",
+                                  key = "q5_sab_val")
+                    st.text_input("Discharge (Baviaanskloof)",
+                                  key = "q5_bav_val")
+                    
+                with q5_col2:
                     st.selectbox("Answer",
                                  ("Sabie River","Baviaanskloof River","Blank"),
                                  index = None,
                                  placeholder="Make a selection...",
                                  key = "q5_ans")
-                with q5_col2:
                     st.selectbox("Motivation",
                                  ("Full Credit","Partial Credit","No Credit"),
                                  index = None,
@@ -345,17 +503,28 @@ if uploaded_files and grader.strip():
                 st.markdown("**Question 8**")
                 st.markdown("*Question 8 (a)*")
 
-                q8a_col1, q8a_col2, q8a_col3 = st.columns(3)
+                q8a_col1, q8a_col2, q8a_col3  = st.columns(3)
 
                 with q8a_col1:
                     st.text_input("Drakensberg Foothills",
                                   key = "q8a_dra_val")
-
-                with q8a_col2:
                     st.text_input("Cape Fold Belt",
                                   key = "q8a_cap_val")
 
+                with q8a_col2:
+                    st.selectbox("Units",
+                                 ("N","kN","Other"),
+                                 key = "q8a_dra_unt")
+                    st.selectbox("Units",
+                                 ("N","kN","Other"),
+                                 key = "q8a_cap_unt")
+
                 with q8a_col3:
+                    st.selectbox("Answer",
+                                 ("Drakensberg Foothiils","Cape Fold Belt")
+                                 Index = None,
+                                 placeholder = "Please make a selection..",
+                                 key = "q8a_ans")
                     st.selectbox("Motivation",
                                  ("Full Credit","Partial Credit","No Credit"),
                                  index=None,
@@ -389,12 +558,12 @@ if uploaded_files and grader.strip():
 
         with st.expander("Question 1", expanded = False):
             q1_sol = st.session_state["question_1"]["solution"]
-            interval = round(q1_sol["shelterbelt_interval"],4)
+            q1_ans = round(q1_sol["shelterbelt_interval"],4)
             q1_fc = round(q1_sol["full_credit"], 4)
             q1_pc = round(q1_sol["partial_credit"], 4)
             
             st.markdown(f"""
-            - Shelterbelt interval: {interval} m
+            - Shelterbelt interval: {q1_ans} m
             - Full credit: ± {q1_fc}
             - Partial credit: ± {q1_pc}
             """)
@@ -402,7 +571,7 @@ if uploaded_files and grader.strip():
 
         with st.expander("Question 2", expanded = False):
             q2_sol = st.session_state["question_2"]["solution"]
-            q2a = q2_sol["year_3"]["cross_sectional_area"]
+            q2a_ans = q2_sol["year_3"]["cross_sectional_area"]
             q2a_fc = q2_sol["year_3"]["full_credit"]
             q2a_pc = q2_sol["year_3"]["partial_credit"]
             q2b = q2_sol["part_b"]["ans"]
@@ -410,7 +579,7 @@ if uploaded_files and grader.strip():
 
             st.markdown(f"""
             **Question 2a)**
-            - Cross sectional area: {q2a} cm²
+            - Cross sectional area: {q2a_ans} cm²
             - Full credit: ± {q2a_fc}
             - Partial credit: ± {q2a_pc}
             """)
