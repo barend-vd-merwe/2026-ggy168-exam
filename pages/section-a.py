@@ -99,12 +99,14 @@ def grade_submission():
     else:
         q1_grd += 0.0
 
+    st.session_state["q1_grd"] = q1_grd
+
     # question 2
     q2a_grd = 0.0
     q2b_grd = 0.0
     q2c_grd = 0.0
     q2a_sub_ans = float(st.session_state["q2a_val"])
-    q2a_sub_unt = st.session_stte["q2a_unt"]
+    q2a_sub_unt = st.session_state["q2a_unt"]
     q2b_sub_ans = st.session_state["q2b"]
     q2c_sub_ans = st.session_state["q2c"]
 
@@ -115,8 +117,8 @@ def grade_submission():
 
     q2a_grd = next((grade for lower, upper, grade in q2a_range if lower <= q2a_sub_ans <= upper),0)
 
-    if q2a_aub_unt == "cm²":
-        q2a_grade += 1.0
+    if q2a_sub_unt == "cm²":
+        q2a_grd += 1.0
     else:
         q2a_grd += 0.0
 
@@ -133,6 +135,11 @@ def grade_submission():
         q2c_grd += 0.0
 
     q2_grd = q2a_grd + q2b_grd + q2c_grd
+
+    st.session_state["q2a_grd"] = q2a_grd
+    st.session_state["q2b_grd"] = q2b_grd
+    st.session_state["q2c_grd"] = q2c_grd
+    st.session_state["q2_grd"] = q2_grd
 
     # question 3
     q3_grd = 0.0
@@ -153,13 +160,15 @@ def grade_submission():
     else:
         q3_grd += 0.0
 
+    st.session_state["q3_grd"] = q3_grd
+
     # question 4
     q4_grd = 0.0
-    q4_sub_ans = float(st.session_key["q4_val"])
-    q4_sub_mot = st.session_sate["q4_mot"]
+    q4_sub_ans = float(st.session_state["q4_val"])
+    q4_sub_mot = st.session_state["q4_mot"]
 
     q4_range = [
-        (q4_re - q4_fc, q4_re + q4_ans, 5.0),
+        (q4_re - q4_fc, q4_re + q4_fc, 5.0),
         (q4_re - q4_pc, q4_re + q4_pc, 2.5)
     ]
 
@@ -172,10 +181,12 @@ def grade_submission():
     else:
         q4_grd += 0.0
 
+    st.session_state["q4_grd"] = q4_grd
+
     # question 5
     q5_grd = 0.0
-    q5_sab_sub_ans = st.session_state["q5_sab_val"]
-    q5_bav_sub_ans = st.session_state["q5_bav_val"]
+    q5_sab_sub_ans = float(st.session_state["q5_sab_val"])
+    q5_bav_sub_ans = float(st.session_state["q5_bav_val"])
     q5_sub_ans = st.session_state["q5_ans"]
     q5_sub_mot = st.session_state["q5_mot"]
 
@@ -184,14 +195,14 @@ def grade_submission():
         (q5_sab - q5_sab_pc, q5_sab + q5_sab_pc, 1.0)
     ]
 
-    q5_grd += next((grade for lower, upper, grade in q5_sab_range if lower <= q5_sab_sub_ans <= upper)0)
+    q5_grd += next((grade for lower, upper, grade in q5_sab_range if lower <= q5_sab_sub_ans <= upper), 0.0)
 
     q5_bav_range = [
         (q5_bav - q5_bav_fc, q5_bav + q5_bav_fc, 2.0),
         (q5_bav - q5_bav_pc, q5_bav + q5_bav_pc, 1.0)
     ]
 
-    q5_grd += next((grade for lower, upper, grade in q5_bav_range if lower <= q5_bav_sub_ans <= upper)0)
+    q5_grd += next((grade for lower, upper, grade in q5_bav_range if lower <= q5_bav_sub_ans <= upper), 0.0)
 
     if q5_sub_ans == "Sabie River":
         q5_grd += 1.0
@@ -205,6 +216,8 @@ def grade_submission():
     else:
         q5_grd += 0.0
 
+    st.session_state["q5_grd"] = q5_grd
+    
     # question 6
     q6_grd = 0.0
     q6_sub_ans = st.session_state["q6"]
@@ -214,6 +227,8 @@ def grade_submission():
     else:
         q6_grd += 0.0
 
+    st.session_state["q6_grd"] = q6_grd
+        
     # question 7
     q7_grd = 0.0
     q7_pro_sub = st.session_state["q7_profile"]
@@ -229,12 +244,84 @@ def grade_submission():
     else:
         q7_grd += 0.0
 
+    st.session_state["q7_grd"] = q7_grd
+
     # question 8
     q8a_grd = 0.0
     q8b_grd = 0.0
+    q8a_dra_sub_ans = float(st.session_state["q8a_dra_val"])
+    q8a_cap_sub_ans = float(st.session_state["q8a_cap_val"])
+    q8a_dra_sub_unt = st.session_state["q8a_dra_unt"]
+    q8a_cap_sub_unt = st.session_state["q8a_cap_unt"]
+    q8a_sub_ans = st.session_state["q8a_ans"]
+    q8a_sub_mot = st.session_state["q8a_mot"]
 
+    if q8a_dra_sub_unt == "kN":
+        q8a_dra_sub_ans *= 1000.0
+
+    if q8a_cap_sub_unt == "kN":
+        q8a_cap_sub_ans *= 1000.0
+
+    q8a_dra_range = [
+        (q8a_dra - q8a_dra_fc, q8a_dra + q8a_dra_fc, 0.5),
+        (q8a_dra - q8a_dra_pc, q8a_dra + q8a_dra_pc, 0.25)
+        ]
+
+    q8a_cap_range = [
+        (q8a_cap - q8a_cap_fc, q8a_cap + q8a_cap_fc, 0.5),
+        (q8a_cap - q8a_cap_pc, q8a_cap + q8a_cap_pc, 0.25)
+        ]
+
+    q8a_grd += next((grade for lower, upper, grade in q8a_dra_range if lower <= q8a_dra_sub_ans <= upper),0.0)
+    q8a_grd += next((grade for lower, upper, grade in q8a_cap_range if lower <= q8a_cap_sub_ans <= upper),0.0)
+
+    if q8a_sub_ans == "Drakensberg Foothiils":
+        q8a_grd += 0.5
+
+    if q8a_sub_mot == "Full Credit":
+        q8a_grd += 0.5
+    elif q8a_sub_mot == "Partial Credit":
+        q8a_grd += 0.25
+
+    q8b_sub_ans = st.session_state["q8b_ans"]
+    q8b_sub_mot = st.session_state["q8b_mot"]
+
+    if q8b_sub_ans == "Drakensberg Foothills":
+        q8b_grd += 1.0
+
+    if q8b_sub_mot == "Full Credit":
+        q8b_grd += 1.0
+    elif q8b_sub_mot == "Partial Credit":
+        q8b_grd += 0.5
+
+    q8_grd = q8a_grd + q8b_grd
+    st.session_state["q8a_grd"] = q8a_grd
+    st.session_state["q8b_grd"] = q8b_grd
+    st.session_state["q8_grd"] = q8_grd
+
+    final_grade = q1_grd + q2_grd + q3_grd + q4_grd + q5_grd + q6_grd + q7_grd + q8_grd
     
+    st.session_state["final_grade"] = final_grade
 
+    cv.putText(img, str(st.session_state["final_grade"]),(851,455), cv.FONT_HERSHEY_SIMPLEX, 3.0, (0,0,255), 1)
+    
+    cv.putText(img, str(st.session_state["student_name"]),(177,131), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+    cv.putText(img,emplid,(1976,131), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+
+    cv.putText(img, str(st.session_state["q1_grd"]),(2301,358), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+    cv.putText(img, str(st.session_state["q2a_grd"]),(2301,458), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+    cv.putText(img, str(st.session_state["q2b_grd"]),(2301,558), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+    cv.putText(img, str(st.session_state["q2c_grd"]),(2332,683), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+    cv.putText(img, str(st.session_state["q3_grd"]),(2332,1058), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+    cv.putText(img, str(st.session_state["q4_grd"]),(2332,1433), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+    cv.putText(img, str(st.session_state["q5_grd"]),(2332,1896), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+    cv.putText(img, str(st.session_state["q6_grd"]),(1213,2296), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+    cv.putText(img, str(st.session_state["q7_grd"]),(2307,2296), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+    cv.putText(img, str(st.session_state["q8a_grd"]),(2332,2452), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+    cv.putText(img, str(st.session_state["q8b_grd"]),(2332,2902), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+
+    st.session_state["graded_submission"] = img
+    
 def next_submission():
     st.session_state["script_index"] += 1
     del st.session_state["graded_submission"]
@@ -258,6 +345,9 @@ def next_submission():
     st.session_state["q7_plan"] = None
     st.session_state["q8a_dra_val"] = ""
     st.session_state["q8a_cap_val"] = ""
+    st.session_state["q8a_dra_unt"] = ""
+    st.session_state["q8a_cap_unt"] = ""
+    st.session_state["q8a_ans"] = None
     st.session_state["q8a_mot"] = None
     st.session_state["q8b_ans"] = None
     st.session_state["q8b_mot"] = None
@@ -514,15 +604,19 @@ if uploaded_files and grader.strip():
                 with q8a_col2:
                     st.selectbox("Units",
                                  ("N","kN","Other"),
+                                 index = None,
+                                 placeholder = "Make a selection...",
                                  key = "q8a_dra_unt")
                     st.selectbox("Units",
                                  ("N","kN","Other"),
+                                 index = None,
+                                 placeholder = "Make a selection...",
                                  key = "q8a_cap_unt")
 
                 with q8a_col3:
                     st.selectbox("Answer",
-                                 ("Drakensberg Foothiils","Cape Fold Belt")
-                                 Index = None,
+                                 ("Drakensberg Foothiils","Cape Fold Belt"),
+                                 index = None,
                                  placeholder = "Please make a selection..",
                                  key = "q8a_ans")
                     st.selectbox("Motivation",
@@ -553,6 +647,37 @@ if uploaded_files and grader.strip():
 
             with col2_a:
                 st.button("Grade", on_click=grade_submission)
+
+            if "graded_submission" in st.session_state:
+                final_img_rgb = cv.cvtColor(st.session_state["graded_submission"], cv.COLOR_BGR2RGB)
+                final_img_pil = Image.fromarray(final_img_rgb)
+
+                filename = f"graded_{filename}.png"
+                grader_timestamp = datetime.now().isoformat()
+                meta_info = PngInfo()
+                meta_info.add_text("Grader", grader.strip())
+                meta_info.add_text("GradedAt", grader_timestamp)
+                meta_info.add_text("final", str(st.session_state["final_grade"]))
+                meta_info.add_text("q1", str(st.session_state["q1_grd"]))
+                meta_info.add_text("q2a", str(st.session_state["q2a_grd"]))
+                meta_info.add_text("q2b", str(st.session_state["q2b_grd"]))
+                meta_info.add_text("q2c", str(st.session_state["q2c_grd"]))  
+                meta_info.add_text("q3", str(st.session_state["q3_grd"]))  
+                meta_info.add_text("q4", str(st.session_state["q4_grd"]))  
+                meta_info.add_text("q5", str(st.session_state["q5_grd"]))  
+                meta_info.add_text("q6", str(st.session_state["q6_grd"]))  
+                meta_info.add_text("q7", str(st.session_state["q7_grd"]))  
+                meta_info.add_text("q8a", str(st.session_state["q8a_grd"]))
+                meta_info.add_text("q8b", str(st.session_state["q8b_grd"]))
+                buffer = io.BytesIO()
+                final_img_pil.save(buffer, format="PNG", pnginfo=meta_info)
+
+                with col2_b:
+                    st.download_button(label=f"Download", data=buffer, file_name=filename, mime="image/png")
+
+                if st.session_state["script_index"] < len(uploaded_files) - 1:
+                    with col2_c:
+                        st.button("Next Submission", on_click = next_submission)
 
     with tab_2:
 
@@ -681,13 +806,13 @@ if uploaded_files and grader.strip():
         with st.expander("Question 8", expanded = False):
             q8_sol = st.session_state["question_8"]["solution"]
 
-            q8_dra = round(q8_sol["site_1"]["downslope_force"], 4)
-            q8_dra_fc = round(q8_sol["site_1"]["full_credit"], 4)
-            q8_dra_pc = round(q8_sol["site_1"]["partial_credit"], 4)
+            q8a_dra = round(q8_sol["site_1"]["downslope_force"], 4)
+            q8a_dra_fc = round(q8_sol["site_1"]["full_credit"], 4)
+            q8a_dra_pc = round(q8_sol["site_1"]["partial_credit"], 4)
 
-            q8_cap = round(q8_sol["site_1"]["downslope_force"], 4)
-            q8_cap_fc = round(q8_sol["site_1"]["full_credit"], 4)
-            q8_cap_pc = round(q8_sol["site_1"]["partial_credit"], 4)
+            q8a_cap = round(q8_sol["site_1"]["downslope_force"], 4)
+            q8a_cap_fc = round(q8_sol["site_1"]["full_credit"], 4)
+            q8a_cap_pc = round(q8_sol["site_1"]["partial_credit"], 4)
 
             q8a_ans = q8_sol["part_a"]["answer"]
             q8a_mot = q8_sol["part_a"]["motivation"]
@@ -697,16 +822,16 @@ if uploaded_files and grader.strip():
 
             st.markdown(f"""
             **Drakensberg Foothills***
-            - Downslope force: {q8_dra} N
-            - Full credit: {q8_dra_fc}
-            - Partial credit: {q8_dra_pc}
+            - Downslope force: {q8a_dra} N
+            - Full credit: {q8a_dra_fc}
+            - Partial credit: {q8a_dra_pc}
             """)
 
             st.markdown(f"""
             **Cape Fold Mountains***
-            - Downslope force: {q8_cap} N
-            - Full credit: {q8_cap_fc}
-            - Partial credit: {q8_cap_pc}
+            - Downslope force: {q8a_cap} N
+            - Full credit: {q8a_cap_fc}
+            - Partial credit: {q8a_cap_pc}
             """)
 
             st.markdown(f"""
