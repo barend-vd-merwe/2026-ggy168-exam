@@ -303,6 +303,14 @@ def grade_submission():
     
     st.session_state["final_grade"] = final_grade
 
+    conn = st.connection("gsheets", type=GSheetsConnection)
+    spreadsheet_url = st.secrets.get("spreadsheet")
+    gc = conn.read(spreadsheet = spreadsheet_url,
+                   ttl=0)
+    column_name = "Exam (Section A) [Total Pts: 41 Score] |2992931"
+    gc.loc[gc["Username"] == emplid, column_name] = st.session_state["final_grade"]
+    conn.update(data=gc)
+
     cv.putText(img, str(st.session_state["final_grade"]),(851,455), cv.FONT_HERSHEY_SIMPLEX, 3.0, (0,0,255), 1)
     
     cv.putText(img, str(st.session_state["student_name"]),(177,131), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
