@@ -438,9 +438,12 @@ with st.sidebar:
                                       key = str(st.session_state["uploader_key"]))
     st.button("Clear", on_click = clear_files)
 
-valid_pin = st.secrets.get("exam_pin")
+usr_pin = st.session_state["user_pin"]
+gizelle_pin = st.secrets.get("gizelle_pin")
+barend_pin = st.secrets.get("barend_pin")
 
-if uploaded_files and grader.strip():
+
+if uploaded_files and grader.strip() and usr_pin == gizelle_pin or usr_pin == barend_pin:
     total_scripts = len(uploaded_files)
     current_script = st.session_state["script_index"] + 1
     progress = min(current_script / total_scripts, 1.0)
