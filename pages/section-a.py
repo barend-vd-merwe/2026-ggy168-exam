@@ -123,7 +123,7 @@ def grade_submission():
         q2a_grd += 0.0
 
     if q2b_sub_ans == "2025 — 2026":
-        q2b_grd += 1.0
+        q2b_grd += 4.0
     else:
         q2b_grd += 0.0
 
