@@ -82,7 +82,7 @@ def process_solutions():
                 solutions[question_key] = yaml.safe_load(raw_bytes)
     return solutions
 
-@st.cache_data(scope="session")
+@st.cache_resource(scope="session")
 def get_gsheet():
     credentials_dict = dict(st.secrets["gcp_service_account"])
     client = gspread.service_account_from_dict(credentials_dict)
@@ -320,7 +320,7 @@ def grade_submission(solutions, img, emplid, surname, name):
     q8a_grd += next((grade for lower, upper, grade in q8a_dra_range if lower <= q8a_dra_sub_ans <= upper),0.0)
     q8a_grd += next((grade for lower, upper, grade in q8a_cap_range if lower <= q8a_cap_sub_ans <= upper),0.0)
 
-    if q8a_sub_ans == "Drakensberg Foothiils":
+    if q8a_sub_ans == "Drakensberg Foothills":
         q8a_grd += 0.5
 
     if q8a_sub_mot == "Full Credit":
@@ -439,7 +439,7 @@ def next_submission():
     st.session_state["q8b_ans"] = None
     st.session_state["q8b_mot"] = None
     # ==============================
-    st.rerun()
+    #st.rerun()
 
 def clear_files():
      st.session_state["uploader_key"] += 1
@@ -705,7 +705,7 @@ if uploaded_files and grader.strip() and (usr_pin == gizelle_pin or usr_pin == b
 
                 with q8a_col3:
                     st.selectbox("Answer",
-                                 ("Drakensberg Foothiils","Cape Fold Belt"),
+                                 ("Drakensberg Foothills","Cape Fold Belt"),
                                  index = None,
                                  placeholder = "Please make a selection..",
                                  key = "q8a_ans")
