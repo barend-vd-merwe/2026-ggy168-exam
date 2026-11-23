@@ -35,7 +35,7 @@ st.markdown(
 
 title_col1, title_col2= st.columns(2)
 with title_col1:
-    st.image(IMG_DIR / "NAS_Faculty Logo.jpg")
+    st.image(IMG_DIR / "ggy168-module-banner.png")
 
 with title_col2:
     st.title("GGY 168 — Introduction to Physical Geography")

@@ -17,9 +17,10 @@ import gc
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 import textwrap
+import gspread
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+IMG_DIR = BASE_DIR / "images"
 
 @st.cache_resource(show_spinner="Establishing credentials...", max_entries=3, scope = "session")
 def get_drive_service():
@@ -33,7 +34,7 @@ def get_drive_service():
 
 @st.cache_data(show_spinner="Loading submission...", max_entries=3, scope = "session")
 def process_submission(file_bytes):
-    img_bytes = np.frombuffer(image.getvalue(), dtype=np.uint8)
+    img_bytes = np.frombuffer(file_bytes, dtype=np.uint8)
     cv_img = cv.imdecode(img_bytes, cv.IMREAD_COLOR)
 
     _, disp_img = cv.imencode(".jpg", cv_img, [int(cv.IMWRITE_JPEG_QUALITY), 80])
@@ -68,9 +69,9 @@ def process_solutions():
     service = get_drive_service()
     root_folder = st.secrets["question_pool_folder"]
 
+    solutions = {}
+
     for question_key, folder_name in config["questions"]["section_a"].items():
-        if question_key in st.session_state:
-            continue
         question_folder_id = find_item_id(service, folder_name, root_folder, is_folder = True)
 
         if question_folder_id:
@@ -78,13 +79,74 @@ def process_solutions():
 
             if meta_file_id:
                 raw_bytes = service.files().get_media(fileId=meta_file_id).execute()
-                st.session_state[question_key] = yaml.safe_load(raw_bytes)
-                print(f"{question_key} created")
+                solutions[question_key] = yaml.safe_load(raw_bytes)
+    return solutions
 
-def grade_submission():
+@st.cache_data(scope="session")
+def get_gsheet():
+    credentials_dict = dict(st.secrets["gcp_service_account"])
+    client = gspread.service_account_from_dict(credentials_dict)
+    sheet_url = st.secrets["connections"]["gsheets"]["spreadsheet"]
+    sheet = client.open_by_url(sheet_url)
+    return sheet.sheet1
+
+def safe_float(val):
+    try:
+        return float(str(val).strip())
+    except:
+        return float("nan")
+
+def grade_submission(solutions, img, emplid, surname, name):
+    # get solutions
+    q1_sol = solutions["question_1"]["solution"]
+    q1_ans = round(q1_sol["shelterbelt_interval"],4)
+    q1_fc = round(q1_sol["full_credit"], 4)
+    q1_pc = round(q1_sol["partial_credit"], 4)
+    q2_sol = solutions["question_2"]["solution"]
+    q2a_ans = q2_sol["year_3"]["cross_sectional_area"]
+    q2a_fc = q2_sol["year_3"]["full_credit"]
+    q2a_pc = q2_sol["year_3"]["partial_credit"]
+    q2b = q2_sol["part_b"]["ans"]
+    q2c = q2_sol["part_c"]["motivation"]
+    q3_sol = solutions["question_3"]["solution"]
+    q3_ans = round(q3_sol["sinuosity"], 4)
+    q3_fc = round(q3_sol["full_credit"], 4)
+    q3_pc = round(q3_sol["partial_credit"], 4)
+    q3_meandering = q3_sol["meandering"]
+    q4_sol = solutions["question_4"]["solution"]
+    q4_re = q4_sol["reynolds_number"]
+    q4_fc = q4_sol["full_credit"]
+    q4_pc = q4_sol["partial_credit"]
+    q4_ans = q4_sol["answer"]
+    q5_sol = solutions["question_5"]["solution"]
+    q5_sab = round(q5_sol["river_1"]["discharge"], 4)
+    q5_sab_fc = round(q5_sol["river_1"]["full_credit"], 4)
+    q5_sab_pc = round(q5_sol["river_1"]["partial_credit"], 4)
+    q5_bav = round(q5_sol["river_2"]["discharge"], 4)
+    q5_bav_fc = round(q5_sol["river_2"]["full_credit"], 4)
+    q5_bav_pc = round(q5_sol["river_2"]["partial_credit"], 4)
+    q5_ans = q5_sol["answer"]
+    q5_mot = q5_sol["motivation"]
+    q6_sol = solutions["question_6"]["solution"]
+    q6_ans = q6_sol["slope_unit"]
+    q7_sol = solutions["question_7"]["solution"]
+    q7_profile = q7_sol["slope_form"]["profile"]
+    q7_plan = q7_sol["slope_form"]["plan"]
+    q8_sol = solutions["question_8"]["solution"]
+    q8a_dra = round(q8_sol["site_1"]["downslope_force"], 4)
+    q8a_dra_fc = round(q8_sol["site_1"]["full_credit"], 4)
+    q8a_dra_pc = round(q8_sol["site_1"]["partial_credit"], 4)
+    q8a_cap = round(q8_sol["site_2"]["downslope_force"], 4)
+    q8a_cap_fc = round(q8_sol["site_2"]["full_credit"], 4)
+    q8a_cap_pc = round(q8_sol["site_2"]["partial_credit"], 4)
+    q8a_ans = q8_sol["part_a"]["answer"]
+    q8a_mot = q8_sol["part_a"]["motivation"]
+    q8b_ans = q8_sol["part_b"]["answer"]
+    q8b_mot = q8_sol["part_b"]["motivation"]
+            
     # question 1
     q1_grd = 0.0
-    q1_sub_ans = float(st.session_state["q1_val"])
+    q1_sub_ans = safe_float(st.session_state["q1_val"])
     q1_sub_unt = st.session_state["q1_unt"]
 
     q1_range = [
@@ -99,13 +161,11 @@ def grade_submission():
     else:
         q1_grd += 0.0
 
-    st.session_state["q1_grd"] = q1_grd
-
     # question 2
     q2a_grd = 0.0
     q2b_grd = 0.0
     q2c_grd = 0.0
-    q2a_sub_ans = float(st.session_state["q2a_val"])
+    q2a_sub_ans = safe_float(st.session_state["q2a_val"])
     q2a_sub_unt = st.session_state["q2a_unt"]
     q2b_sub_ans = st.session_state["q2b"]
     q2c_sub_ans = st.session_state["q2c"]
@@ -136,14 +196,9 @@ def grade_submission():
 
     q2_grd = q2a_grd + q2b_grd + q2c_grd
 
-    st.session_state["q2a_grd"] = q2a_grd
-    st.session_state["q2b_grd"] = q2b_grd
-    st.session_state["q2c_grd"] = q2c_grd
-    st.session_state["q2_grd"] = q2_grd
-
     # question 3
     q3_grd = 0.0
-    q3_sub_ans = float(st.session_state["q3_val"])
+    q3_sub_ans = safe_float(st.session_state["q3_val"])
     q3_sub_mot = st.session_state["q3_mot"]
 
     q3_range = [
@@ -160,11 +215,9 @@ def grade_submission():
     else:
         q3_grd += 0.0
 
-    st.session_state["q3_grd"] = q3_grd
-
     # question 4
     q4_grd = 0.0
-    q4_sub_ans = float(st.session_state["q4_val"])
+    q4_sub_ans = safe_float(st.session_state["q4_val"])
     q4_sub_mot = st.session_state["q4_mot"]
 
     q4_range = [
@@ -181,12 +234,10 @@ def grade_submission():
     else:
         q4_grd += 0.0
 
-    st.session_state["q4_grd"] = q4_grd
-
     # question 5
     q5_grd = 0.0
-    q5_sab_sub_ans = float(st.session_state["q5_sab_val"])
-    q5_bav_sub_ans = float(st.session_state["q5_bav_val"])
+    q5_sab_sub_ans = safe_float(st.session_state["q5_sab_val"])
+    q5_bav_sub_ans = safe_float(st.session_state["q5_bav_val"])
     q5_sub_ans = st.session_state["q5_ans"]
     q5_sub_mot = st.session_state["q5_mot"]
 
@@ -215,8 +266,6 @@ def grade_submission():
         q5_grd += 0.5
     else:
         q5_grd += 0.0
-
-    st.session_state["q5_grd"] = q5_grd
     
     # question 6
     q6_grd = 0.0
@@ -226,8 +275,6 @@ def grade_submission():
         q6_grd += 2.0
     else:
         q6_grd += 0.0
-
-    st.session_state["q6_grd"] = q6_grd
         
     # question 7
     q7_grd = 0.0
@@ -244,13 +291,11 @@ def grade_submission():
     else:
         q7_grd += 0.0
 
-    st.session_state["q7_grd"] = q7_grd
-
     # question 8
     q8a_grd = 0.0
     q8b_grd = 0.0
-    q8a_dra_sub_ans = float(st.session_state["q8a_dra_val"])
-    q8a_cap_sub_ans = float(st.session_state["q8a_cap_val"])
+    q8a_dra_sub_ans = safe_float(st.session_state["q8a_dra_val"])
+    q8a_cap_sub_ans = safe_float(st.session_state["q8a_cap_val"])
     q8a_dra_sub_unt = st.session_state["q8a_dra_unt"]
     q8a_cap_sub_unt = st.session_state["q8a_cap_unt"]
     q8a_sub_ans = st.session_state["q8a_ans"]
@@ -295,40 +340,74 @@ def grade_submission():
         q8b_grd += 0.5
 
     q8_grd = q8a_grd + q8b_grd
-    st.session_state["q8a_grd"] = q8a_grd
-    st.session_state["q8b_grd"] = q8b_grd
-    st.session_state["q8_grd"] = q8_grd
 
     final_grade = q1_grd + q2_grd + q3_grd + q4_grd + q5_grd + q6_grd + q7_grd + q8_grd
     
-    st.session_state["final_grade"] = final_grade
+    ws = get_gsheet()
 
-    conn = st.connection("gsheets", type=GSheetsConnection)
-    spreadsheet_url = st.secrets.get("spreadsheet")
-    gc = conn.read(spreadsheet = spreadsheet_url,
-                   ttl=0)
-    column_name = "Exam (Section A) [Total Pts: 41 Score] |2992931"
-    gc.loc[gc["Username"] == emplid, column_name] = st.session_state["final_grade"]
-    conn.update(data=gc)
+    if "usernames" not in st.session_state:
+        st.session_state["usernames"] = ws.col_values(3)
+        headers = ws.row_values(1)
+        st.session_state["target_col"] = headers.index("Exam (Section A) [Total Pts: 41 Score] |2992931")
 
-    cv.putText(img, str(st.session_state["final_grade"]),(851,455), cv.FONT_HERSHEY_SIMPLEX, 3.0, (0,0,255), 1)
+    row_idx = st.session_state["usernames"].index(emplid) + 1
+    col_idx = st.session_state["target_col"] + 1
+    ws.update_cell(row_idx, col_idx, safe_float(final_grade))
+    st.toast(f"Successfully updated mark for {name}: {final_grade}",
+             icon="\u2705")
+
+    # conn = st.connection("gsheets", type=GSheetsConnection)
+    # spreadsheet_url = st.secrets.get("spreadsheet")
+    # gc = conn.read(spreadsheet = spreadsheet_url,
+    #                ttl=0)
+    # column_name = "Exam (Section A) [Total Pts: 41 Score] |2992931"
+    # gc.loc[gc["Username"] == emplid, column_name] = st.session_state["final_grade"]
+    # conn.update(data=gc)
+
+    cv.putText(img, str(final_grade),(851,455), cv.FONT_HERSHEY_SIMPLEX, 3.0, (0,0,255), 1)
     
     cv.putText(img, str(st.session_state["student_name"]),(177,131), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
     cv.putText(img,emplid,(1976,131), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
 
-    cv.putText(img, str(st.session_state["q1_grd"]),(2301,358), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
-    cv.putText(img, str(st.session_state["q2a_grd"]),(2301,458), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
-    cv.putText(img, str(st.session_state["q2b_grd"]),(2301,558), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
-    cv.putText(img, str(st.session_state["q2c_grd"]),(2332,683), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
-    cv.putText(img, str(st.session_state["q3_grd"]),(2332,1058), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
-    cv.putText(img, str(st.session_state["q4_grd"]),(2332,1433), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
-    cv.putText(img, str(st.session_state["q5_grd"]),(2332,1896), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
-    cv.putText(img, str(st.session_state["q6_grd"]),(1213,2296), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
-    cv.putText(img, str(st.session_state["q7_grd"]),(2307,2296), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
-    cv.putText(img, str(st.session_state["q8a_grd"]),(2332,2452), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
-    cv.putText(img, str(st.session_state["q8b_grd"]),(2332,2902), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+    cv.putText(img, str(q1_grd),(2301,358), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+    cv.putText(img, str(q2a_grd),(2301,458), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+    cv.putText(img, str(q2b_grd),(2301,558), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+    cv.putText(img, str(q2c_grd),(2332,683), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+    cv.putText(img, str(q3_grd),(2332,1058), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+    cv.putText(img, str(q4_grd),(2332,1433), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+    cv.putText(img, str(q5_grd),(2332,1896), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+    cv.putText(img, str(q6_grd),(1213,2296), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+    cv.putText(img, str(q7_grd),(2307,2296), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+    cv.putText(img, str(q8a_grd),(2332,2452), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
+    cv.putText(img, str(q8b_grd),(2332,2902), cv.FONT_HERSHEY_SIMPLEX, 2.0, (0,0,255), 1)
 
-    st.session_state["graded_submission"] = img
+    final_img_rgb = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+    final_img_pil = Image.fromarray(final_img_rgb)
+
+    filename = f"graded-{surname}-{name}-{emplid}.png"
+    st.session_state["graded_filename"] = filename
+    grader_timestamp = datetime.now().isoformat()
+    meta_info = PngInfo()
+    meta_info.add_text("Grader", grader.strip())
+    meta_info.add_text("GradedAt", grader_timestamp)
+    meta_info.add_text("final", str(final_grade))
+    meta_info.add_text("q1", str(q1_grd))
+    meta_info.add_text("q2a", str(q2a_grd))
+    meta_info.add_text("q2b", str(q2b_grd))
+    meta_info.add_text("q2c", str(q2c_grd))  
+    meta_info.add_text("q3", str(q3_grd))  
+    meta_info.add_text("q4", str(q4_grd))  
+    meta_info.add_text("q5", str(q5_grd))  
+    meta_info.add_text("q6", str(q6_grd))  
+    meta_info.add_text("q7", str(q7_grd))  
+    meta_info.add_text("q8a", str(q8a_grd))
+    meta_info.add_text("q8b", str(q8b_grd))
+    buffer = io.BytesIO()
+    final_img_pil.save(buffer, format="PNG",
+                       pnginfo=meta_info,
+                       compress_level=1)
+
+    st.session_state["graded_submission"] = buffer.getvalue()
     
 def next_submission():
     st.session_state["script_index"] += 1
@@ -353,8 +432,8 @@ def next_submission():
     st.session_state["q7_plan"] = None
     st.session_state["q8a_dra_val"] = ""
     st.session_state["q8a_cap_val"] = ""
-    st.session_state["q8a_dra_unt"] = ""
-    st.session_state["q8a_cap_unt"] = ""
+    st.session_state["q8a_dra_unt"] = None
+    st.session_state["q8a_cap_unt"] = None
     st.session_state["q8a_ans"] = None
     st.session_state["q8a_mot"] = None
     st.session_state["q8b_ans"] = None
@@ -400,7 +479,7 @@ st.markdown(
 
 title_col1, title_col2= st.columns(2)
 with title_col1:
-    st.image(BASE_DIR / "NAS_Faculty Logo.jpg")
+    st.image(IMG_DIR / "ggy168-module-banner.png")
 
 with title_col2:
     st.title("GGY 168 — Introduction to Physical Geography")
@@ -443,7 +522,7 @@ gizelle_pin = st.secrets.get("gizelle_pin")
 barend_pin = st.secrets.get("barend_pin")
 
 
-if uploaded_files and grader.strip() and usr_pin == gizelle_pin or usr_pin == barend_pin:
+if uploaded_files and grader.strip() and (usr_pin == gizelle_pin or usr_pin == barend_pin):
     total_scripts = len(uploaded_files)
     current_script = st.session_state["script_index"] + 1
     progress = min(current_script / total_scripts, 1.0)
@@ -458,7 +537,7 @@ if uploaded_files and grader.strip() and usr_pin == gizelle_pin or usr_pin == ba
 
     img, img_url = process_submission(image.getvalue())
 
-    process_solutions()
+    solutions = process_solutions()
 
     tab_1, tab_2 = st.tabs(["Grader", "Memo"])
 
@@ -657,34 +736,16 @@ if uploaded_files and grader.strip() and usr_pin == gizelle_pin or usr_pin == ba
             col2_a, col2_b, col2_c = st.columns(3)
 
             with col2_a:
-                st.button("Grade", on_click=grade_submission)
+                st.button("Grade",
+                          on_click=grade_submission,
+                          args=(solutions, img.copy(), emplid, surname, name))
 
             if "graded_submission" in st.session_state:
-                final_img_rgb = cv.cvtColor(st.session_state["graded_submission"], cv.COLOR_BGR2RGB)
-                final_img_pil = Image.fromarray(final_img_rgb)
-
-                filename = f"graded-{surname}-{name}-{emplid}.png"
-                grader_timestamp = datetime.now().isoformat()
-                meta_info = PngInfo()
-                meta_info.add_text("Grader", grader.strip())
-                meta_info.add_text("GradedAt", grader_timestamp)
-                meta_info.add_text("final", str(st.session_state["final_grade"]))
-                meta_info.add_text("q1", str(st.session_state["q1_grd"]))
-                meta_info.add_text("q2a", str(st.session_state["q2a_grd"]))
-                meta_info.add_text("q2b", str(st.session_state["q2b_grd"]))
-                meta_info.add_text("q2c", str(st.session_state["q2c_grd"]))  
-                meta_info.add_text("q3", str(st.session_state["q3_grd"]))  
-                meta_info.add_text("q4", str(st.session_state["q4_grd"]))  
-                meta_info.add_text("q5", str(st.session_state["q5_grd"]))  
-                meta_info.add_text("q6", str(st.session_state["q6_grd"]))  
-                meta_info.add_text("q7", str(st.session_state["q7_grd"]))  
-                meta_info.add_text("q8a", str(st.session_state["q8a_grd"]))
-                meta_info.add_text("q8b", str(st.session_state["q8b_grd"]))
-                buffer = io.BytesIO()
-                final_img_pil.save(buffer, format="PNG", pnginfo=meta_info)
-
                 with col2_b:
-                    st.download_button(label=f"Download", data=buffer, file_name=filename, mime="image/png")
+                    st.download_button(label=f"Download",
+                                       data=st.session_state["graded_submission"],
+                                       file_name=st.session_state["graded_filename"],
+                                       mime="image/png")
 
                 if st.session_state["script_index"] < len(uploaded_files) - 1:
                     with col2_c:
@@ -693,7 +754,7 @@ if uploaded_files and grader.strip() and usr_pin == gizelle_pin or usr_pin == ba
     with tab_2:
 
         with st.expander("Question 1", expanded = False):
-            q1_sol = st.session_state["question_1"]["solution"]
+            q1_sol = solutions["question_1"]["solution"]
             q1_ans = round(q1_sol["shelterbelt_interval"],4)
             q1_fc = round(q1_sol["full_credit"], 4)
             q1_pc = round(q1_sol["partial_credit"], 4)
@@ -706,7 +767,7 @@ if uploaded_files and grader.strip() and usr_pin == gizelle_pin or usr_pin == ba
             
 
         with st.expander("Question 2", expanded = False):
-            q2_sol = st.session_state["question_2"]["solution"]
+            q2_sol = solutions["question_2"]["solution"]
             q2a_ans = q2_sol["year_3"]["cross_sectional_area"]
             q2a_fc = q2_sol["year_3"]["full_credit"]
             q2a_pc = q2_sol["year_3"]["partial_credit"]
@@ -732,7 +793,7 @@ if uploaded_files and grader.strip() and usr_pin == gizelle_pin or usr_pin == ba
             
 
         with st.expander("Question 3", expanded = False):
-            q3_sol = st.session_state["question_3"]["solution"]
+            q3_sol = solutions["question_3"]["solution"]
             q3_ans = round(q3_sol["sinuosity"], 4)
             q3_fc = round(q3_sol["full_credit"], 4)
             q3_pc = round(q3_sol["partial_credit"], 4)
@@ -749,7 +810,7 @@ if uploaded_files and grader.strip() and usr_pin == gizelle_pin or usr_pin == ba
             """)
 
         with st.expander("Question 4", expanded = False):
-            q4_sol = st.session_state["question_4"]["solution"]
+            q4_sol = solutions["question_4"]["solution"]
             q4_re = q4_sol["reynolds_number"]
             q4_fc = q4_sol["full_credit"]
             q4_pc = q4_sol["partial_credit"]
@@ -766,7 +827,7 @@ if uploaded_files and grader.strip() and usr_pin == gizelle_pin or usr_pin == ba
             """)
 
         with st.expander("Question 5", expanded = False):
-            q5_sol = st.session_state["question_5"]["solution"]
+            q5_sol = solutions["question_5"]["solution"]
             q5_sab = round(q5_sol["river_1"]["discharge"], 4)
             q5_sab_fc = round(q5_sol["river_1"]["full_credit"], 4)
             q5_sab_pc = round(q5_sol["river_1"]["partial_credit"], 4)
@@ -797,7 +858,7 @@ if uploaded_files and grader.strip() and usr_pin == gizelle_pin or usr_pin == ba
             """)
 
         with st.expander("Question 6", expanded = False):
-            q6_sol = st.session_state["question_6"]["solution"]
+            q6_sol = solutions["question_6"]["solution"]
             q6_ans = q6_sol["slope_unit"]
 
             st.markdown(f"""
@@ -805,7 +866,7 @@ if uploaded_files and grader.strip() and usr_pin == gizelle_pin or usr_pin == ba
             """)
 
         with st.expander("Question 7", expanded = False):
-            q7_sol = st.session_state["question_7"]["solution"]
+            q7_sol = solutions["question_7"]["solution"]
             q7_profile = q7_sol["slope_form"]["profile"]
             q7_plan = q7_sol["slope_form"]["plan"]
 
@@ -815,7 +876,7 @@ if uploaded_files and grader.strip() and usr_pin == gizelle_pin or usr_pin == ba
             """)
 
         with st.expander("Question 8", expanded = False):
-            q8_sol = st.session_state["question_8"]["solution"]
+            q8_sol = solutions["question_8"]["solution"]
 
             q8a_dra = round(q8_sol["site_1"]["downslope_force"], 4)
             q8a_dra_fc = round(q8_sol["site_1"]["full_credit"], 4)
