@@ -82,7 +82,7 @@ def process_solutions():
                 solutions[question_key] = yaml.safe_load(raw_bytes)
     return solutions
 
-@st.cache_data(scope="session")
+@st.cache_resource(scope="session")
 def get_gsheet():
     credentials_dict = dict(st.secrets["gcp_service_account"])
     client = gspread.service_account_from_dict(credentials_dict)
@@ -97,15 +97,289 @@ def safe_float(val):
         return float("nan")
 
 def grade_submission(solutions, img, emplid, surname, name):
-    q13 = solutions["question_13"]["solution"]
+    q13a_grd_1 = 0.0
+    q13a_grd_2 = 0.0
+    q13a_grd_3 = 0.0
+    q13a_grd_4 = 0.0
+    q13b_grd = 0.0
+    q13c_grd = 0.0
+    if st.session_state["strip_orientation"] == "Horizontal":
+        q13 = solutions["question_13"]["solution"]["horizontal_strips"]
+    else:
+        q13 = solutions["question_13"]["solution"]["vertical_strips"]
+    # strip 1
+    l1_ans = q13["strip_1"]["length"]["answer"]
+    l1_fc = q13["strip_1"]["length"]["full_credit"]
+    l1_pc = q13["strip_1"]["length"]["partial_credit"]
+
+    w1_ans = q13["strip_1"]["width"]["answer"]
+    w1_fc = q13["strip_1"]["width"]["full_credit"]
+    w1_pc = q13["strip_1"]["width"]["partial_credit"]
+
+    a1_ans = q13["strip_1"]["area"]["answer"]
+    a1_fc = q13["strip_1"]["area"]["full_credit"]
+    a1_pc = q13["strip_1"]["area"]["partial_credit"]
+
+    # strip 2
+    l2_ans = q13["strip_2"]["length"]["answer"]
+    l2_fc = q13["strip_2"]["length"]["full_credit"]
+    l2_pc = q13["strip_2"]["length"]["partial_credit"]
+
+    w2_ans = q13["strip_2"]["width"]["answer"]
+    w2_fc = q13["strip_2"]["width"]["full_credit"]
+    w2_pc = q13["strip_2"]["width"]["partial_credit"]
+
+    a2_ans = q13["strip_2"]["area"]["answer"]
+    a2_fc = q13["strip_2"]["area"]["full_credit"]
+    a2_pc = q13["strip_2"]["area"]["partial_credit"]
+
+    # strip 3
+    l3_ans = q13["strip_3"]["length"]["answer"]
+    l3_fc = q13["strip_3"]["length"]["full_credit"]
+    l3_pc = q13["strip_3"]["length"]["partial_credit"]
+
+    w3_ans = q13["strip_3"]["width"]["answer"]
+    w3_fc = q13["strip_3"]["width"]["full_credit"]
+    w3_pc = q13["strip_3"]["width"]["partial_credit"]
+
+    a3_ans = q13["strip_3"]["area"]["answer"]
+    a3_fc = q13["strip_3"]["area"]["full_credit"]
+    a3_pc = q13["strip_3"]["area"]["partial_credit"]
+
+    # strip 4
+    l4_ans = q13["strip_4"]["length"]["answer"]
+    l4_fc = q13["strip_4"]["length"]["full_credit"]
+    l4_pc = q13["strip_4"]["length"]["partial_credit"]
+
+    w4_ans = q13["strip_4"]["width"]["answer"]
+    w4_fc = q13["strip_4"]["width"]["full_credit"]
+    w4_pc = q13["strip_4"]["width"]["partial_credit"]
+
+    a4_ans = q13["strip_4"]["area"]["answer"]
+    a4_fc = q13["strip_4"]["area"]["full_credit"]
+    a4_pc = q13["strip_4"]["area"]["partial_credit"]
+
+    # total area
+    tot_ans = q13["total_area"]["answer"]
+    tot_fc = q13["total_area"]["full_credit"]
+    tot_pc = q13["total_area"]["partial_credit"]
+
+    l1_sub = safe_float(edited_df.loc[edited_df["strip"] == 1, "length"].item())
+    w1_sub = safe_float(edited_df.loc[edited_df["strip"] == 1, "width"].item())
+    a1_sub = safe_float(edited_df.loc[edited_df["strip"] == 1, "area"].item())
+
+    l1_range = [
+        (l1_ans - l1_fc, l1_ans + l1_fc, 1.0),
+        (l1_ans - l1_pc, l1_ans + l1_pc, 0.5)
+    ]
+
+    q13a_grd_1 += next((grade for lower, upper, grade in l1_range if lower <= l1_sub <= upper),0.0)
+
+    w1_range = [
+        (w1_ans - w1_fc, w1_ans + w1_fc, 1.0),
+        (w1_ans - w1_pc, w1_ans + w1_pc, 0.5)
+    ]
+
+    q13a_grd_1 += next((grade for lower, upper, grade in w1_range if lower <= w1_sub <= upper),0.0)
+
+    a1_range = [
+        (a1_ans - a1_fc, a1_ans + a1_fc, 1.0),
+        (a1_ans - a1_pc, a1_ans + a1_pc, 0.5)
+    ]
+
+    q13a_grd_1 += next((grade for lower, upper, grade in a1_range if lower <= a1_sub <= upper),0.0)
+
+    l2_sub = safe_float(edited_df.loc[edited_df["strip"] == 2, "length"].item())
+    w2_sub = safe_float(edited_df.loc[edited_df["strip"] == 2, "width"].item())
+    a2_sub = safe_float(edited_df.loc[edited_df["strip"] == 2, "area"].item())
+
+    l2_range = [
+        (l2_ans - l2_fc, l2_ans + l2_fc, 1.0),
+        (l2_ans - l2_pc, l2_ans + l2_pc, 0.5)
+    ]
+
+    q13a_grd_2 += next((grade for lower, upper, grade in l2_range if lower <= l2_sub <= upper),0.0)
+
+    w2_range = [
+        (w2_ans - w2_fc, w2_ans + w2_fc, 1.0),
+        (w2_ans - w2_pc, w2_ans + w2_pc, 0.5)
+    ]
+
+    q13a_grd_2 += next((grade for lower, upper, grade in w2_range if lower <= w2_sub <= upper),0.0)
+
+    a2_range = [
+        (a2_ans - a2_fc, a2_ans + a2_fc, 1.0),
+        (a2_ans - a2_pc, a2_ans + a2_pc, 0.5)
+    ]
+
+    q13a_grd_2 += next((grade for lower, upper, grade in a2_range if lower <= a2_sub <= upper),0.0)
+
+    l3_sub = safe_float(edited_df.loc[edited_df["strip"] == 3, "length"].item())
+    w3_sub = safe_float(edited_df.loc[edited_df["strip"] == 3, "width"].item())
+    a3_sub = safe_float(edited_df.loc[edited_df["strip"] == 3, "area"].item())
+
+    l3_range = [
+        (l3_ans - l3_fc, l3_ans + l3_fc, 1.0),
+        (l3_ans - l3_pc, l3_ans + l3_pc, 0.5)
+    ]
+
+    q13a_grd_3 += next((grade for lower, upper, grade in l3_range if lower <= l3_sub <= upper),0.0)
+
+    w3_range = [
+        (w3_ans - w3_fc, w3_ans + w3_fc, 1.0),
+        (w3_ans - w3_pc, w3_ans + w3_pc, 0.5)
+    ]
+
+    q13a_grd_3 += next((grade for lower, upper, grade in w3_range if lower <= w3_sub <= upper),0.0)
+
+    a3_range = [
+        (a3_ans - a3_fc, a3_ans + a3_fc, 1.0),
+        (a3_ans - a3_pc, a3_ans + a3_pc, 0.5)
+    ]
+
+    q13a_grd_3 += next((grade for lower, upper, grade in a3_range if lower <= a3_sub <= upper),0.0)
+
+    l4_sub = safe_float(edited_df.loc[edited_df["strip"] == 4, "length"].item())
+    w4_sub = safe_float(edited_df.loc[edited_df["strip"] == 4, "width"].item())
+    a4_sub = safe_float(edited_df.loc[edited_df["strip"] == 4, "area"].item())
+
+    l4_range = [
+        (l4_ans - l4_fc, l4_ans + l4_fc, 1.0),
+        (l4_ans - l4_pc, l4_ans + l4_pc, 0.5)
+    ]
+
+    q13a_grd_4 += next((grade for lower, upper, grade in l4_range if lower <= l4_sub <= upper),0.0)
+
+    w4_range = [
+        (w4_ans - w4_fc, w4_ans + w4_fc, 1.0),
+        (w4_ans - w4_pc, w4_ans + w4_pc, 0.5)
+    ]
+
+    q13a_grd_4 += next((grade for lower, upper, grade in w4_range if lower <= w4_sub <= upper),0.0)
+
+    a4_range = [
+        (a4_ans - a4_fc, a4_ans + a4_fc, 1.0),
+        (a4_ans - a4_pc, a4_ans + a4_pc, 0.5)
+    ]
+
+    q13a_grd_4 += next((grade for lower, upper, grade in a4_range if lower <= a4_sub <= upper),0.0)
+
+    q13a_grd = q13a_grd_1 + q13a_grd_2 + q13a_grd_3 + q13a_grd_4 
+
+    tot_sub_val = safe_float(st.session_state["sub_ta"])
+    tot_sub_unt = st.session_state["sub_ta_unt"]
+
+    tot_area_range = [
+        (tot_ans - tot_fc, tot_ans + tot_fc, 1.0),
+        (tot_ans - tot_pc, tot_ans + tot_pc, 0.5)
+    ]
+
+    q13b_grd += next((grade for lower, upper, grade in tot_area_range if lower <= tot_sub_val <= upper),0.0)
+
+    if tot_sub_unt == "Full Credit":
+        q13b_grd += 1.0
+
+    wrk_1 = st.session_state["wrk_strip1"]
+
+    match wrk_1:
+        case "Full Credit":
+            q13c_grd += 2.0
+        case "Partial Credit":
+            q13c_grd += 1.0
+        case "No Credit":
+            q13c_grd += 0.0
+    
+    wrk_2 = st.session_state["wrk_strip2"]
+
+    match wrk_2:
+        case "Full Credit":
+            q13c_grd += 2.0
+        case "Partial Credit":
+            q13c_grd += 1.0
+        case "No Credit":
+            q13c_grd += 0.0
+            
+    wrk_3 = st.session_state["wrk_strip3"]
+
+    match wrk_3:
+        case "Full Credit":
+            q13c_grd += 2.0
+        case "Partial Credit":
+            q13c_grd += 1.0
+        case "No Credit":
+            q13c_grd += 0.0
+            
+    wrk_4 = st.session_state["wrk_strip4"]
+
+    match wrk_4:
+        case "Full Credit":
+            q13c_grd += 2.0
+        case "Partial Credit":
+            q13c_grd += 1.0
+        case "No Credit":
+            q13c_grd += 0.0
+
+    final_grade = q13a_grd + q13b_grd + q13c_grd
+
+    ws = get_gsheet()
+
+    if "usernames" not in st.session_state:
+        st.session_state["usernames"] = ws.col_values(3)
+        headers = ws.row_values(1)
+        st.session_state["target_col"] = headers.index("Exam (Section B) [Total Pts: 22 Score] |2992934")
+
+    row_idx = st.session_state["usernames"].index(emplid) + 1
+    col_idx = st.session_state["target_col"] + 1
+    ws.update_cell(row_idx, col_idx, safe_float(final_grade))
+    st.toast(f"Successfully updated mark for {name}: {final_grade}",
+             icon="\u2705")
+
+    cv.putText(img, f"{name} {surname}",(88,70), cv.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,255), 1)
+    cv.putText(img, str(emplid),(962,71), cv.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,255), 1)
+    cv.putText(img, str(final_grade),(425,227), cv.FONT_HERSHEY_SIMPLEX, 1.5, (0,0,255), 1)
+
+    cv.putText(img, str(q13a_grd_1),(1153,283), cv.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,255), 1)
+    cv.putText(img, str(q13a_grd_2),(1153,313), cv.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,255), 1)
+    cv.putText(img, str(q13a_grd_3),(1153,345), cv.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,255), 1)
+    cv.putText(img, str(q13a_grd_4),(1153,376), cv.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,255), 1)
+
+    cv.putText(img, str(q13b_grd),(1153,420), cv.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,255), 1)
+    cv.putText(img, str(q13c_grd),(981,821), cv.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,255), 1)
+
+    final_img_rgb = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+    final_img_pil = Image.fromarray(final_img_rgb)
+
+    filename = f"graded-{surname}-{name}-{emplid}.png"
+    st.session_state["graded_filename"] = filename
+    grader_timestamp = datetime.now().isoformat()
+    meta_info = PngInfo()
+    meta_info.add_text("Grader", grader.strip())
+    meta_info.add_text("GradedAt", grader_timestamp)
+    meta_info.add_text("final", str(final_grade))
+    meta_info.add_text("q13a", str(q13a_grd))
+    meta_info.add_text("q13b", str(q13b_grd))
+    meta_info.add_text("q13c", str(q13c_grd))
+    buffer = io.BytesIO()
+    final_img_pil.save(buffer, format="PNG",
+                       pnginfo=meta_info,
+                       compress_level=1)
+
+    st.session_state["graded_submission"] = buffer.getvalue()
 
 def next_submission():
     st.session_state["script_index"] += 1
+    st.session_state["editor_version"] += 1
     del st.session_state["graded_submission"]
+    gc.collect()
     # ==============================
-
+    st.session_state["sub_ta"] = ""
+    st.session_state["sub_ta_unt"] = None
+    st.session_state["wrk_strip1"] = None
+    st.session_state["wrk_strip2"] = None
+    st.session_state["wrk_strip3"] = None
+    st.session_state["wrk_strip4"] = None
     # ==============================
-    st.rerun()
+    #st.rerun()
 
 def clear_files():
      st.session_state["uploader_key"] += 1
@@ -202,7 +476,6 @@ if uploaded_files and grader.strip() and (usr_pin == gizelle_pin or usr_pin == b
     filename = image.name
     filename = filename.replace(".png","")
     _ , surname, name, emplid = filename.split("-")
-    st.session_state["student_name"] = f"{name} {surname}"
 
     img, img_url = process_submission(image.getvalue())
 
@@ -235,7 +508,7 @@ if uploaded_files and grader.strip() and (usr_pin == gizelle_pin or usr_pin == b
             {"strip": 2, "length": None, "width": None, "area": None},
             {"strip": 3, "length": None, "width": None, "area": None},
             {"strip": 4, "length": None, "width": None, "area": None}
-        ]
+            ]
 
             sub_df = pd.DataFrame(raw_table)
 
@@ -308,3 +581,21 @@ if uploaded_files and grader.strip() and (usr_pin == gizelle_pin or usr_pin == b
                              index = None,
                              placeholder = "Make a selection...",
                              key = "wrk_strip4")
+
+            col2_a, col2_b, col2_c = st.columns(3)
+
+            with col2_a:
+                st.button("Grade",
+                          on_click=grade_submission,
+                          args=(solutions, img.copy(), emplid, surname, name))
+
+            if "graded_submission" in st.session_state:
+                with col2_b:
+                    st.download_button(label=f"Download",
+                                       data=st.session_state["graded_submission"],
+                                       file_name=st.session_state["graded_filename"],
+                                       mime="image/png")
+
+                if st.session_state["script_index"] < len(uploaded_files) - 1:
+                    with col2_c:
+                        st.button("Next Submission", on_click = next_submission)
