@@ -378,6 +378,7 @@ def next_submission():
     st.session_state["wrk_strip2"] = None
     st.session_state["wrk_strip3"] = None
     st.session_state["wrk_strip4"] = None
+    st.session_state["strip_orientation"] = "Horizontal"
     # ==============================
     #st.rerun()
 
@@ -519,17 +520,17 @@ if uploaded_files and grader.strip() and (usr_pin == gizelle_pin or usr_pin == b
                         "Strip",
                         disabled = True
                     ),
-                    "length": st.column_config.NumberColumn(
+                    "length": st.column_config.TextColumn(
                         "Length (km)",
                         disabled = False,
                         required = True
                     ),
-                    "width": st.column_config.NumberColumn(
+                    "width": st.column_config.TextColumn(
                         "Width (km)",
                         disabled = False,
                         required = True
                     ),
-                    "area": st.column_config.NumberColumn(
+                    "area": st.column_config.TextColumn(
                         "Area (km²)",
                         disabled = False,
                         required = True
