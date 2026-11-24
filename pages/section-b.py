@@ -379,11 +379,13 @@ def next_submission():
     st.session_state["wrk_strip3"] = None
     st.session_state["wrk_strip4"] = None
     st.session_state["strip_orientation"] = "Horizontal"
+    st.session_state["download_complete"] = False
     # ==============================
     #st.rerun()
 
 def clear_files():
      st.session_state["uploader_key"] += 1
+     st.session_state["download_complete"] = False
      del st.session_state["script_index"]
      if "graded_submission" in st.session_state:
          del st.session_state["graded_submission"]
@@ -449,13 +451,18 @@ if "uploader_key" not in st.session_state:
 if "editor_version" not in st.session_state:
     st.session_state["editor_version"] = 200
 
+if "download_complete" not in st.session_state:
+    st.session_state["download_complete"] = False
+
 # load class list and submission
 with st.sidebar:
     grader = st.text_input("Name of grader", key="graderName")
     pin = st.text_input("Enter PIN number",
                         type = "password",
                         key = "user_pin")
-    uploaded_files = st.file_uploader("Select the student submission",
+    st.metric("Busy marking script",
+              st.session_state["script_index"])
+    uploaded_files = st.file_uploader("Select the student submission(s)",
                                       type = ["png"],
                                       accept_multiple_files = True,
                                       key = str(st.session_state["uploader_key"]))
@@ -476,7 +483,8 @@ if uploaded_files and grader.strip() and (usr_pin == gizelle_pin or usr_pin == b
     image = uploaded_files[st.session_state["script_index"]]
     filename = image.name
     filename = filename.replace(".png","")
-    _ , surname, name, emplid = filename.split("-")
+    _ , *surname_parts, name, emplid = filename.split("-")
+    surname = "-".join(surname_parts)
 
     img, img_url = process_submission(image.getvalue())
 
@@ -595,8 +603,9 @@ if uploaded_files and grader.strip() and (usr_pin == gizelle_pin or usr_pin == b
                     st.download_button(label=f"Download",
                                        data=st.session_state["graded_submission"],
                                        file_name=st.session_state["graded_filename"],
-                                       mime="image/png")
+                                       mime="image/png",
+                                       on_click = lambda: st.session_state.update({"download_complete" : True}))
 
-                if st.session_state["script_index"] < len(uploaded_files) - 1:
+                if st.session_state["script_index"] < len(uploaded_files) - 1 and st.session_state["download_complete"]:
                     with col2_c:
                         st.button("Next Submission", on_click = next_submission)

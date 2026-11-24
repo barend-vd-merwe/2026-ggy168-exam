@@ -532,7 +532,8 @@ if uploaded_files and grader.strip() and (usr_pin == gizelle_pin or usr_pin == b
     image = uploaded_files[st.session_state["script_index"]]
     filename = image.name
     filename = filename.replace(".png","")
-    _ , surname, name, emplid = filename.split("-")
+    _ , *surname_parts, name, emplid = filename.split("-")
+    surname = "-".join(surname_parts)
     st.session_state["student_name"] = f"{name} {surname}"
 
     img, img_url = process_submission(image.getvalue())
