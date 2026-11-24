@@ -461,7 +461,7 @@ with st.sidebar:
                         type = "password",
                         key = "user_pin")
     st.metric("Busy marking script",
-              st.session_state["script_index"])
+              st.session_state["script_index"] + 1)
     uploaded_files = st.file_uploader("Select the student submission(s)",
                                       type = ["png"],
                                       accept_multiple_files = True,
