@@ -71,7 +71,7 @@ def process_solutions():
 
     solutions = {}
 
-    for question_key, folder_name in config["questions"]["section_a"].items():
+    for question_key, folder_name in config["questions"]["section_a_cont"].items():
         question_folder_id = find_item_id(service, folder_name, root_folder, is_folder = True)
 
         if question_folder_id:
@@ -96,22 +96,243 @@ def safe_float(val):
     except:
         return float("nan")
 
-def grade_submission(solutions, img, emplid, surname, name):
-    pass
+def q11_answer_approach():
+    match st.session_state["q11_approach"]:
+        case "Volume":
+            st.session_state.update({
+                "q11_mr_a" : str(23.8007),
+                "q11_mr_b" : str(19.8468)
+            })
 
+        case "Migration Rate":
+            st.session_state.update({
+                "q11_mr_a" : "",
+                "q11_mr_b" : ""
+            })
+    
+def grade_submission(solutions, img, emplid, surname, name):
+    # question 9
+    q9_grd = 0.0
+    
+    q9_sol = solutions["question_9"]["solution"]
+    
+    q9_ata_sub = safe_float(st.session_state["q9_ata_val"])
+    q9_ata_ai = q9_sol["desert_1"]["aridity_index"]
+    q9_ata_fc = q9_sol["desert_1"]["full_credit"]
+    q9_ata_pc = q9_sol["desert_1"]["partial_credit"]
+
+    q9_kal_sub = safe_float(st.session_state["q9_kal_val"])
+    q9_kal_ai = q9_sol["desert_2"]["aridity_index"]
+    q9_kal_fc = q9_sol["desert_2"]["full_credit"]
+    q9_kal_pc = q9_sol["desert_2"]["partial_credit"]
+
+    q9_sub_ans = st.session_state["q9_sub_ans"]
+    q9_sub_mot = st.session_state["q9_sub_mot"]
+
+    q9_ata_range = [
+        (q9_ata_ai - q9_ata_fc, q9_ata_ai + q9_ata_fc, 1.0),
+        (q9_ata_ai - q9_ata_pc, q9_ata_ai + q9_ata_pc, 0.5)
+    ]
+
+    q9_kal_range = [
+        (q9_kal_ai - q9_kal_fc, q9_kal_ai + q9_kal_fc, 1.0),
+        (q9_kal_ai - q9_kal_pc, q9_kal_ai + q9_kal_pc, 0.5)
+    ]
+
+    q9_grd += next((grade for lower, upper, grade in q9_ata_range if lower <= q9_ata_sub <= upper),0.0)
+
+    q9_grd += next((grade for lower, upper, grade in q9_kal_range if lower <= q9_kal_sub <= upper),0.0)
+
+    if q9_sub_ans == "Atacama":
+        q9_grd += 1.0
+
+    match q9_sub_mot:
+        case "Full Credit":
+            q9_grd += 1.0
+        case "Partial Credit":
+            q9_grd += 0.5
+        case "No Credit":
+            q9_grd += 0.0
+
+    # question 10
+    q10a_grd = 0.0
+    q10b_grd = 0.0
+
+    q10_sol = solutions["question_10"]["solution"]
+
+    q10a_sub = safe_float(st.session_state["q10_sub_val"])
+    q10a_ans = q10_sol["ac_ratio"]
+    q10a_fc = q10_sol["full_credit"]
+    q10a_pc = q10_sol["partial_credit"]
+    q10b_sub = st.session_state["q10_sub_shape"]
+
+    q10a_range = [
+        (q10a_ans - q10a_fc, q10a_ans + q10a_fc, 10.0),
+        (q10a_ans - q10a_pc, q10a_ans + q10a_pc, 5.0)
+    ]
+
+    q10a_grd += next((grade for lower, upper, grade in q10a_range if lower <= q10a_sub <= upper), 0.0)
+
+    if q10b_sub == "Pudgy":
+        q10b_grd += 2.0
+
+    q10_grd = q10a_grd + q10b_grd
+    
+    # question 11
+    q11_grd = 0.0
+    q11_sol = solutions["question_11"]["solution"]
+
+    q11_mr_a_sub = safe_float(st.session_state["q11_mr_a"])
+    q11_mrate_a = q11_sol["barchan_1"]["migration_rate"]
+    q11_mrate_a_fc = q11_sol["barchan_1"]["full_credit"]
+    q11_mrate_a_pc = q11_sol["barchan_1"]["partial_credit"]
+
+    q11_mr_b_sub = safe_float(st.session_state["q11_mr_b"])
+    q11_mrate_b = q11_sol["barchan_2"]["migration_rate"]
+    q11_mrate_b_fc = q11_sol["barchan_2"]["full_credit"]
+    q11_mrate_b_pc = q11_sol["barchan_2"]["partial_credit"]
+
+    q11_sub_ans = st.session_state["q11_sub_ans"]
+    q11_sub_mot = st.session_state["q11_sub_mot"]
+
+    q11_ba_range = [
+        (q11_mrate_a - q11_mrate_a_fc, q11_mrate_a + q11_mrate_a_fc, 1.0),
+        (q11_mrate_a - q11_mrate_a_pc, q11_mrate_a + q11_mrate_a_pc, 0.5)
+    ]
+
+    q11_bb_range = [
+        (q11_mrate_b - q11_mrate_b_fc, q11_mrate_b + q11_mrate_b_fc, 1.0),
+        (q11_mrate_b - q11_mrate_b_pc, q11_mrate_b + q11_mrate_b_pc, 0.5)
+    ]
+
+    q11_grd += next((grade for lower, upper, grade in q11_ba_range if lower <= q11_mr_a_sub <= upper), 0.0)
+
+    q11_grd += next((grade for lower, upper, grade in q11_bb_range if lower <= q11_mr_b_sub <= upper), 0.0)
+
+    if q11_sub_ans == "Barchan A":
+        q11_grd += 2.0
+
+    match q11_sub_mot:
+        case "Full Credit":
+            q11_grd += 2.0
+        case "Partial Credit":
+            q11_grd += 1.0
+        case "No Credit":
+            q11_grd += 0.0
+
+    # question 12
+    q12a_grd = 0.0
+    q12b_grd = 0.0
+    q12_wrk_grd = 0.0
+
+    q12_sol = solutions["question_12"]["solution"]
+    q12_str_ans = q12_sol["strahler"]
+    q12_shr_ans = q12_sol["shreve"]
+
+    q12_sub_str = safe_float(st.session_state["q12_sub_str"])
+    q12_sub_shr = safe_float(st.session_state["q12_sub_shr"])
+
+    if q12_sub_str == q12_str_ans:
+        q12a_grd += 1
+
+    if q12_sub_shr == q12_shr_ans:
+        q12b_grd += 1.0
+
+    match st.session_state["q12_str_wrk"]:
+        case "Full Credit":
+            q12_wrk_grd += 1.0
+        case "Partial Credit":
+            q12_wrk_grd += 0.5
+        case "No Credit":
+            q12_wrk_grd += 0.0
+
+    match st.session_state["q12_shr_wrk"]:
+        case "Full Credit":
+            q12_wrk_grd += 1.0
+        case "Partial Credit":
+            q12_wrk_grd += 0.5
+        case "No Credit":
+            q12_wrk_grd += 0.0
+
+    q12_grd = q12a_grd + q12b_grd + q12_wrk_grd
+    # final processing
+    final_grade = q9_grd + q10_grd + q11_grd + q12_grd
+    
+    ws = get_gsheet()
+
+    if "usernames" not in st.session_state:
+        st.session_state["usernames"] = ws.col_values(3)
+        headers = ws.row_values(1)
+        st.session_state["target_col"] = headers.index("Exam (Section A - cont) [Total Pts: 26 Score] |2992933")
+
+    row_idx = st.session_state["usernames"].index(emplid) + 1
+    col_idx = st.session_state["target_col"] + 1
+    ws.update_cell(row_idx, col_idx, safe_float(final_grade))
+    st.toast(f"Successfully updated mark for {name}: {final_grade}",
+             icon="\u2705")
+
+    cv.putText(img, f"{name} {surname}",(88,70), cv.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,255), 1)
+    cv.putText(img, str(emplid),(962,71), cv.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,255), 1)
+    cv.putText(img, str(final_grade),(425,227), cv.FONT_HERSHEY_SIMPLEX, 1.5, (0,0,255), 1)
+
+    cv.putText(img, str(q9_grd),(1158,202), cv.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,255), 1)
+    cv.putText(img, str(q10a_grd),(1158,392), cv.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,255), 1)
+    cv.putText(img, str(q10b_grd),(1158,442), cv.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,255), 1)
+    cv.putText(img, str(q11_grd),(1158,514), cv.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,255), 1)
+    cv.putText(img, str(q12a_grd),(617,708), cv.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,255), 1)
+    cv.putText(img, str(q12b_grd),(1158,710), cv.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,255), 1)
+    cv.putText(img, str(q12_wrk_grd),(1158,856), cv.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,255), 1)
+
+    final_img_rgb = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+    final_img_pil = Image.fromarray(final_img_rgb)
+
+    filename = f"graded-{surname}-{name}-{emplid}.png"
+    st.session_state["graded_filename"] = filename
+    grader_timestamp = datetime.now().isoformat()
+    meta_info = PngInfo()
+    meta_info.add_text("Grader", grader.strip())
+    meta_info.add_text("GradedAt", grader_timestamp)
+    meta_info.add_text("final", str(final_grade))
+    meta_info.add_text("q9", str(q9_grd))
+    meta_info.add_text("q10a", str(q10a_grd))
+    meta_info.add_text("q10b", str(q10b_grd))
+    meta_info.add_text("q11", str(q11_grd))
+    meta_info.add_text("q12a", str(q12a_grd))
+    meta_info.add_text("q12b", str(q12b_grd))
+    meta_info.add_text("q12wrk", str(q12_wrk_grd))
+    buffer = io.BytesIO()
+    final_img_pil.save(buffer, format="PNG",
+                       pnginfo=meta_info,
+                       compress_level=1)
+
+    st.session_state["graded_submission"] = buffer.getvalue()
+
+    
 def next_submission():
     st.session_state["script_index"] += 1
     st.session_state["editor_version"] += 1
     del st.session_state["graded_submission"]
     gc.collect()
     # ==============================
-    st.session_state["sub_ta"] = ""
-    st.session_state["sub_ta_unt"] = None
-    st.session_state["wrk_strip1"] = None
-    st.session_state["wrk_strip2"] = None
-    st.session_state["wrk_strip3"] = None
-    st.session_state["wrk_strip4"] = None
-    st.session_state["strip_orientation"] = "Horizontal"
+    st.session_state.update({
+        "q9_ata_val": "",
+        "q9_kal_val": "",
+        "q9_sub_ans": None,
+        "q9_sub_mot": None,
+        "q10_sub_val" : "",
+        "q10_sub_shape" : None,
+        "q11_sub_ans" : None,
+        "q11_sub_mot" : None,
+        "q11_mr_a" : "",
+        "q11_mr_b" : "",
+        "q12_sub_str" : "",
+        "q12_sub_shr" : "",
+        "q12_str_wrk" : None,
+        "q12_shr_wrk" : None,
+        "download_complete": False,
+        "q11_approach" : "Migration Rate",
+        "q11_blank" : False
+    })
     # ==============================
     #st.rerun()
 
@@ -182,12 +403,17 @@ if "uploader_key" not in st.session_state:
 if "editor_version" not in st.session_state:
     st.session_state["editor_version"] = 200
 
+if "download_complete" not in st.session_state:
+    st.session_state["download_complete"] = False
+
 # load class list and submission
 with st.sidebar:
     grader = st.text_input("Name of grader", key="graderName")
     pin = st.text_input("Enter PIN number",
                         type = "password",
                         key = "user_pin")
+    st.metric("Busy marking script",
+              st.session_state["script_index"] + 1)
     uploaded_files = st.file_uploader("Select the student submission",
                                       type = ["png"],
                                       accept_multiple_files = True,
@@ -258,22 +484,43 @@ if uploaded_files and grader.strip() and (usr_pin == gizelle_pin or usr_pin == b
                               key = "q10_sub_val")
             with q10_col2:
                 st.selectbox("Shape",
-                             ("Slim","Normal","Pudgy","Fat"),
+                             ("Slim","Normal","Pudgy","Fat","Blank"),
                              index = None,
                              placeholder = "Make a selection...",
                              key = "q10_sub_shape")
 
             st.markdown("**Question 11**")
 
+            st.toggle("Blank",
+                      value = False,
+                      key = "q11_blank")
+
+            if st.session_state["q11_blank"]:
+                st.session_state.update({
+                    "q11_mr_a" : "0",
+                    "q11_mr_b" : "0",
+                    "q11_sub_ans" : "Blank",
+                    "q11_sub_mot" : "No Credit"
+                })
+
+            st.radio("Answer based on",
+                     ["Migration Rate", "Volume"],
+                     key = "q11_approach",
+                     on_change = q11_answer_approach)
+
             q11_col1, q11_col2 = st.columns(2)
 
             with q11_col1:
+                st.text_input("Migration Rate A",
+                              key = "q11_mr_a")
+                st.text_input("Migration Rate B",
+                              key = "q11_mr_b")
+            with q11_col2:
                 st.selectbox("Answer",
-                             ("Barchan A", "Barchan B"),
+                             ("Barchan A", "Barchan B", "Blank"),
                              index = None,
                              placeholder = "Make a selection...",
                              key = "q11_sub_ans")
-            with q11_col2:
                 st.selectbox("Motivation",
                              ("Full Credit","Partial Credit","No Credit"),
                              index = None,
@@ -295,10 +542,29 @@ if uploaded_files and grader.strip() and (usr_pin == gizelle_pin or usr_pin == b
                              ("Full Credit","Partial Credit","No Credit"),
                              index = None,
                              placeholder = "Make a selection...",
-                             key = "q11_str_wrk")
+                             key = "q12_str_wrk")
                 st.selectbox("Work shown (Shreve)",
                              ("Full Credit","Partial Credit","No Credit"),
                              index = None,
                              placeholder = "Make a selection...",
-                             key = "q11_shr_wrk")
+                             key = "q12_shr_wrk")
+
+            col2_a, col2_b, col2_c = st.columns(3)
+
+            with col2_a:
+                st.button("Grade",
+                          on_click=grade_submission,
+                          args=(solutions, img.copy(), emplid, surname, name))
+
+            if "graded_submission" in st.session_state:
+                with col2_b:
+                    st.download_button(label=f"Download",
+                                       data=st.session_state["graded_submission"],
+                                       file_name=st.session_state["graded_filename"],
+                                       mime="image/png",
+                                       on_click = lambda: st.session_state.update({"download_complete" : True}))
+
+                if st.session_state["script_index"] < len(uploaded_files) - 1 and st.session_state["download_complete"]:
+                    with col2_c:
+                        st.button("Next Submission", on_click = next_submission)
                 
