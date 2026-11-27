@@ -449,122 +449,123 @@ if uploaded_files and grader.strip() and (usr_pin == gizelle_pin or usr_pin == b
         col1, col2 = st.columns(2)
 
         with col1:
-            custom_functions.submission_viewer(img_url)
+            custom_functions.submission_viewer(img_url, height = 800)
 
         with col2:
-            st.markdown("**Quetion 9**")
+            with st.container(height = 800, border = False):
+                st.markdown("**Quetion 9**")
 
-            q9_col1, q9_col2 = st.columns(2)
+                q9_col1, q9_col2 = st.columns(2)
 
-            with q9_col1:
-                st.text_input("AI (Atacama)",
-                              key = "q9_ata_val")
+                with q9_col1:
+                    st.text_input("AI (Atacama)",
+                                  key = "q9_ata_val")
 
-                st.text_input("AI (Kalahari)",
-                              key = "q9_kal_val")
-                
-            with q9_col2:
-                st.selectbox("Answer",
-                             ("Atacama", "Kalahari", "Blank"),
-                             index = None,
-                             placeholder = "Make a selection..",
-                             key = "q9_sub_ans")
-                st.selectbox("Motivation",
-                             ("Full Credit","Partial Credit","No Credit"),
-                             index = None,
-                             placeholder = "Make a selection...",
-                             key = "q9_sub_mot")
+                    st.text_input("AI (Kalahari)",
+                                  key = "q9_kal_val")
 
-            st.markdown("**Question 10**")
+                with q9_col2:
+                    st.selectbox("Answer",
+                                 ("Atacama", "Kalahari", "Blank"),
+                                 index = None,
+                                 placeholder = "Make a selection..",
+                                 key = "q9_sub_ans")
+                    st.selectbox("Motivation",
+                                 ("Full Credit","Partial Credit","No Credit"),
+                                 index = None,
+                                 placeholder = "Make a selection...",
+                                 key = "q9_sub_mot")
 
-            q10_col1, q10_col2 = st.columns(2)
+                st.markdown("**Question 10**")
 
-            with q10_col1:
-                st.text_input("a/c ratio",
-                              key = "q10_sub_val")
-            with q10_col2:
-                st.selectbox("Shape",
-                             ("Slim","Normal","Pudgy","Fat","Blank"),
-                             index = None,
-                             placeholder = "Make a selection...",
-                             key = "q10_sub_shape")
+                q10_col1, q10_col2 = st.columns(2)
 
-            st.markdown("**Question 11**")
+                with q10_col1:
+                    st.text_input("a/c ratio",
+                                  key = "q10_sub_val")
+                with q10_col2:
+                    st.selectbox("Shape",
+                                 ("Slim","Normal","Pudgy","Fat","Blank"),
+                                 index = None,
+                                 placeholder = "Make a selection...",
+                                 key = "q10_sub_shape")
 
-            st.toggle("Blank",
-                      value = False,
-                      key = "q11_blank")
+                st.markdown("**Question 11**")
 
-            if st.session_state["q11_blank"]:
-                st.session_state.update({
-                    "q11_mr_a" : "0",
-                    "q11_mr_b" : "0",
-                    "q11_sub_ans" : "Blank",
-                    "q11_sub_mot" : "No Credit"
-                })
+                st.toggle("Blank",
+                          value = False,
+                          key = "q11_blank")
 
-            st.radio("Answer based on",
-                     ["Migration Rate", "Volume"],
-                     key = "q11_approach",
-                     on_change = q11_answer_approach)
+                if st.session_state["q11_blank"]:
+                    st.session_state.update({
+                        "q11_mr_a" : "0",
+                        "q11_mr_b" : "0",
+                        "q11_sub_ans" : "Blank",
+                        "q11_sub_mot" : "No Credit"
+                    })
 
-            q11_col1, q11_col2 = st.columns(2)
+                st.radio("Answer based on",
+                         ["Migration Rate", "Volume"],
+                         key = "q11_approach",
+                         on_change = q11_answer_approach)
 
-            with q11_col1:
-                st.text_input("Migration Rate A",
-                              key = "q11_mr_a")
-                st.text_input("Migration Rate B",
-                              key = "q11_mr_b")
-            with q11_col2:
-                st.selectbox("Answer",
-                             ("Barchan A", "Barchan B", "Blank"),
-                             index = None,
-                             placeholder = "Make a selection...",
-                             key = "q11_sub_ans")
-                st.selectbox("Motivation",
-                             ("Full Credit","Partial Credit","No Credit"),
-                             index = None,
-                             placeholder = "Make a selection...",
-                             key = "q11_sub_mot")
+                q11_col1, q11_col2 = st.columns(2)
 
-            st.markdown("**Question 12**")
+                with q11_col1:
+                    st.text_input("Migration Rate A",
+                                  key = "q11_mr_a")
+                    st.text_input("Migration Rate B",
+                                  key = "q11_mr_b")
+                with q11_col2:
+                    st.selectbox("Answer",
+                                 ("Barchan A", "Barchan B", "Blank"),
+                                 index = None,
+                                 placeholder = "Make a selection...",
+                                 key = "q11_sub_ans")
+                    st.selectbox("Motivation",
+                                 ("Full Credit","Partial Credit","No Credit"),
+                                 index = None,
+                                 placeholder = "Make a selection...",
+                                 key = "q11_sub_mot")
 
-            q12_col1, q12_col2 = st.columns(2)
+                st.markdown("**Question 12**")
 
-            with q12_col1:
-                st.text_input("Strahler",
-                              key = "q12_sub_str")
-                st.text_input("Shreve",
-                              key = "q12_sub_shr")
+                q12_col1, q12_col2 = st.columns(2)
 
-            with q12_col2:
-                st.selectbox("Work shown (Strahler)",
-                             ("Full Credit","Partial Credit","No Credit"),
-                             index = None,
-                             placeholder = "Make a selection...",
-                             key = "q12_str_wrk")
-                st.selectbox("Work shown (Shreve)",
-                             ("Full Credit","Partial Credit","No Credit"),
-                             index = None,
-                             placeholder = "Make a selection...",
-                             key = "q12_shr_wrk")
+                with q12_col1:
+                    st.text_input("Strahler",
+                                  key = "q12_sub_str")
+                    st.text_input("Shreve",
+                                  key = "q12_sub_shr")
 
-            col2_a, col2_b, col2_c = st.columns(3)
+                with q12_col2:
+                    st.selectbox("Work shown (Strahler)",
+                                 ("Full Credit","Partial Credit","No Credit"),
+                                 index = None,
+                                 placeholder = "Make a selection...",
+                                 key = "q12_str_wrk")
+                    st.selectbox("Work shown (Shreve)",
+                                 ("Full Credit","Partial Credit","No Credit"),
+                                 index = None,
+                                 placeholder = "Make a selection...",
+                                 key = "q12_shr_wrk")
 
-            with col2_a:
-                st.button("Grade",
-                          on_click=grade_submission,
-                          args=(solutions, img.copy(), emplid, surname, name))
+                col2_a, col2_b, col2_c = st.columns(3)
 
-            if "graded_submission" in st.session_state:
-                with col2_b:
-                    st.download_button(label=f"Download",
-                                       data=st.session_state["graded_submission"],
-                                       file_name=st.session_state["graded_filename"],
-                                       mime="image/png",
-                                       on_click = lambda: st.session_state.update({"download_complete" : True}))
+                with col2_a:
+                    st.button("Grade",
+                              on_click=grade_submission,
+                              args=(solutions, img.copy(), emplid, surname, name))
 
-                if st.session_state["script_index"] < len(uploaded_files) - 1 and st.session_state["download_complete"]:
-                    with col2_c:
-                        st.button("Next Submission", on_click = next_submission)
+                if "graded_submission" in st.session_state:
+                    with col2_b:
+                        st.download_button(label=f"Download",
+                                           data=st.session_state["graded_submission"],
+                                           file_name=st.session_state["graded_filename"],
+                                           mime="image/png",
+                                           on_click = lambda: st.session_state.update({"download_complete" : True}))
+
+                    if st.session_state["script_index"] < len(uploaded_files) - 1 and st.session_state["download_complete"]:
+                        with col2_c:
+                            st.button("Next Submission", on_click = next_submission)
                 
