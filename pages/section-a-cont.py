@@ -460,22 +460,18 @@ if uploaded_files and grader.strip() and (usr_pin == gizelle_pin or usr_pin == b
                 with q9_col1:
                     st.text_input("AI (Atacama)",
                                   key = "q9_ata_val")
-
-                    st.text_input("AI (Kalahari)",
-                                  key = "q9_kal_val")
+                    st.pills("Answer",
+                         ["Atacama", "Kalahari", "Blank"],
+                         key = "q9_sub_ans")
 
                 with q9_col2:
-                    st.selectbox("Answer",
-                                 ("Atacama", "Kalahari", "Blank"),
-                                 index = None,
-                                 placeholder = "Make a selection..",
-                                 key = "q9_sub_ans")
-                    st.selectbox("Motivation",
-                                 ("Full Credit","Partial Credit","No Credit"),
-                                 index = None,
-                                 placeholder = "Make a selection...",
-                                 key = "q9_sub_mot")
-
+                    st.text_input("AI (Kalahari)",
+                                  key = "q9_kal_val")
+                    st.pills("Motivation",
+                         ["Full Credit","Partial Credit","No Credit"],
+                         key = "q9_sub_mot")
+                    
+                
                 st.markdown("**Question 10**")
 
                 q10_col1, q10_col2 = st.columns(2)
@@ -484,11 +480,9 @@ if uploaded_files and grader.strip() and (usr_pin == gizelle_pin or usr_pin == b
                     st.text_input("a/c ratio",
                                   key = "q10_sub_val")
                 with q10_col2:
-                    st.selectbox("Shape",
-                                 ("Slim","Normal","Pudgy","Fat","Blank"),
-                                 index = None,
-                                 placeholder = "Make a selection...",
-                                 key = "q10_sub_shape")
+                    st.pills("Barchan shape",
+                             ["Slim","Normal","Pudgy","Fat","Blank"],
+                             key = "q10_sub_shape")
 
                 st.markdown("**Question 11**")
 
@@ -507,26 +501,24 @@ if uploaded_files and grader.strip() and (usr_pin == gizelle_pin or usr_pin == b
                 st.radio("Answer based on",
                          ["Migration Rate", "Volume"],
                          key = "q11_approach",
-                         on_change = q11_answer_approach)
+                         on_change = q11_answer_approach,
+                         horizontal = True)
 
                 q11_col1, q11_col2 = st.columns(2)
 
                 with q11_col1:
                     st.text_input("Migration Rate A",
                                   key = "q11_mr_a")
+                    st.pills("Answer",
+                             ["Barchan A", "Barchan B", "Blank"],
+                             key = "q11_sub_ans")
+                    
+                with q11_col2:
                     st.text_input("Migration Rate B",
                                   key = "q11_mr_b")
-                with q11_col2:
-                    st.selectbox("Answer",
-                                 ("Barchan A", "Barchan B", "Blank"),
-                                 index = None,
-                                 placeholder = "Make a selection...",
-                                 key = "q11_sub_ans")
-                    st.selectbox("Motivation",
-                                 ("Full Credit","Partial Credit","No Credit"),
-                                 index = None,
-                                 placeholder = "Make a selection...",
-                                 key = "q11_sub_mot")
+                    st.pills("Motivation",
+                             ["Full Credit","Partial Credit","No Credit"],
+                             key = "q11_sub_mot")
 
                 st.markdown("**Question 12**")
 
@@ -535,20 +527,16 @@ if uploaded_files and grader.strip() and (usr_pin == gizelle_pin or usr_pin == b
                 with q12_col1:
                     st.text_input("Strahler",
                                   key = "q12_sub_str")
+                    st.pills("Work shown",
+                             ["Full Credit","Partial Credit","No Credit"],
+                             key = "q12_str_wrk")
+                    
+                with q12_col2:
                     st.text_input("Shreve",
                                   key = "q12_sub_shr")
-
-                with q12_col2:
-                    st.selectbox("Work shown (Strahler)",
-                                 ("Full Credit","Partial Credit","No Credit"),
-                                 index = None,
-                                 placeholder = "Make a selection...",
-                                 key = "q12_str_wrk")
-                    st.selectbox("Work shown (Shreve)",
-                                 ("Full Credit","Partial Credit","No Credit"),
-                                 index = None,
-                                 placeholder = "Make a selection...",
-                                 key = "q12_shr_wrk")
+                    st.pills("Work shown",
+                             ["Full Credit","Partial Credit","No Credit"],
+                             key = "q12_shr_wrk")
 
                 col2_a, col2_b, col2_c = st.columns(3)
 
